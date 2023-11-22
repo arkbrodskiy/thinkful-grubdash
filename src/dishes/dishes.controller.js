@@ -7,7 +7,7 @@ const dishes = require(path.resolve("src/data/dishes-data"));
 const nextId = require("../utils/nextId");
 
 // Middleware
-const bodyDataHas = (propertyName) => {
+function bodyDataHas(propertyName) {
     return (req, res, next) => {
         const { data = {} } = req.body;
         if (data[propertyName]) {
@@ -17,7 +17,7 @@ const bodyDataHas = (propertyName) => {
     };
 }
 
-const priceIsValid = (req, res, next) => {
+function priceIsValid(req, res, next) {
     const {data: {price}} = req.body
     if (Number.isInteger(price) && price > 0) {
         return next()
@@ -25,7 +25,7 @@ const priceIsValid = (req, res, next) => {
     next({ status: 400, message: "Dish must have a price that is an integer greater than 0" });
 }
 
-const dishExists = (req, res, next) => {
+function dishExists(req, res, next) {
     const { dishId } = req.params
     const foundDish = dishes.find((dish) => dish.id === dishId);
     if (foundDish) {
@@ -38,7 +38,7 @@ const dishExists = (req, res, next) => {
     })
 }
 
-const idIsTheSame = (req, res, next) => {
+function idIsTheSame(req, res, next) {
     const dish = res.locals.dish
     const dishId = req.body.data.id
     if (!dishId || dishId && dish.id === dishId) {
@@ -51,7 +51,7 @@ const idIsTheSame = (req, res, next) => {
 }
 
 // CRUDL
-const create = (req, res) => {
+function create(req, res) {
     const {data: {name, description, price, image_url} = {} } = req.body
     const newDish = {
         id: nextId(),
@@ -64,11 +64,11 @@ const create = (req, res) => {
     res.status(201).json({data: newDish})
 }
 
-const read = (req, res) => {
+function read(req, res) {
     res.json({ data: res.locals.dish })
 }
 
-const update = (req, res) => {
+function update(req, res) {
     const dish = res.locals.dish
     const { data: { name, description, price, image_url } = {} } = req.body;
     dish.name = name
@@ -78,7 +78,7 @@ const update = (req, res) => {
     res.json({data: dish})
 }
 
-const list = (req, res) => {
+function list(req, res) {
     res.json({data: dishes})
 }
 

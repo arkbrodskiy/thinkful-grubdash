@@ -7,7 +7,7 @@ const orders = require(path.resolve("src/data/orders-data"));
 const nextId = require("../utils/nextId");
 
 // Middleware
-const bodyDataHas = (propertyName) => {
+function bodyDataHas(propertyName) {
     return (req, res, next) => {
         const { data = {} } = req.body;
         if (data[propertyName]) {
@@ -17,7 +17,7 @@ const bodyDataHas = (propertyName) => {
     };
 }
 
-const dishesIsValid = (req, res, next) => {
+function dishesIsValid(req, res, next) {
     const {data: { dishes }} = req.body
     if (Array.isArray(dishes) && dishes.length > 0) {
         return next()
@@ -25,7 +25,7 @@ const dishesIsValid = (req, res, next) => {
     next({ status: 400, message: "Order must include at least one dish" })
 }
 
-const dishesQuantityIsValid = (req, res, next) => {
+function dishesQuantityIsValid(req, res, next) {
     const dishes = req.body.data.dishes
     let index = -1
     for (let i = 0; i < dishes.length; i++) {
@@ -41,7 +41,7 @@ const dishesQuantityIsValid = (req, res, next) => {
     next()
 }
 
-const orderExists = (req, res, next) => {
+function orderExists(req, res, next) {
     const { orderId } = req.params
     const foundOrder = orders.find((order) => order.id === orderId)
     if (foundOrder) {
@@ -51,7 +51,7 @@ const orderExists = (req, res, next) => {
     next({status: 404, message: `Order not found: ${orderId}`})
 }
 
-const idIsTheSame = (req, res, next) => {
+function idIsTheSame(req, res, next) {
     const order = res.locals.order
     const orderId = req.body.data.id
     if (!orderId || orderId && order.id === orderId) {
@@ -63,7 +63,7 @@ const idIsTheSame = (req, res, next) => {
     })
 }
 
-const statusIsValid = (req, res, next) => {
+function statusIsValid(req, res, next) {
     const {data: {status} } = req.body
     const validValues = new Set(["pending", "preparing", "out-for-delivery", "delivered"])
     if (status && validValues.has(status) && status !== "delivered") {
@@ -81,7 +81,7 @@ const statusIsValid = (req, res, next) => {
     })
 }
 
-const statusIsPending = (req, res, next) => {
+function statusIsPending(req, res, next) {
     const status = res.locals.order.status
     if (status === "pending") return next()
     next({
@@ -91,7 +91,7 @@ const statusIsPending = (req, res, next) => {
 }
 
 // CRUDL
-const create = (req, res) => {
+function create(req, res) {
     const {data: { deliverTo, mobileNumber, status, dishes } = {} } = req.body
     const newOrder = {
         id: nextId(),
@@ -104,11 +104,11 @@ const create = (req, res) => {
     res.status(201).json({data: newOrder})
 }
 
-const read = (req, res) => {
+function read(req, res) {
     res.json({ data: res.locals.order })
 }
 
-const update = (req, res) => {
+function update(req, res) {
     const order = res.locals.order
     const {data: {deliverTo, mobileNumber, status, dishes}} = req.body
     order.deliverTo = deliverTo
@@ -118,14 +118,14 @@ const update = (req, res) => {
     res.json({data: order})
 }
 
-const destroy = (req, res) => {
+function destroy(req, res) {
     const orderId = res.locals.id;
     const index = orders.findIndex((order) => order.id === orderId);
     orders.splice(index, 1);
     res.sendStatus(204);
 }
 
-const list = (req, res) => {
+function list(req, res) {
     res.json({data: orders})
 }
 
